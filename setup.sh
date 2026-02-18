@@ -5,7 +5,7 @@ if [ $EUID -ne 0 ]; then
   exit 1
 fi
 mkdir -pv /opt/pluginmanager/tmp /opt/pluginmanager/config /opt/pluginmanager/downloads /opt/pluginmanager/logs
-read -r " -> Please enter your server version:" sver
+read -p " -> Please enter your server version: " sver
 echo $sver
 echo $sver > /opt/pluginmanager/config/server-version.txt
 echo " -> Downloading colours configuration..."
