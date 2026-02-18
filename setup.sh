@@ -15,5 +15,6 @@ wget -q -O /opt/pluginmanager/config/version.txt https://raw.githubusercontent.c
 echo " -> Downloading and setting up script..."
 wget -q -O /usr/bin/pluginmgr https://raw.githubusercontent.com/thedistromaker/serverplugins/setuptools/script.sh
 chmod +x /usr/bin/pluginmgr
+touch /opt/pluginmanager/config/targetdir.conf
 echo " -> Done!"
 exit 0
