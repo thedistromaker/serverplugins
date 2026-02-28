@@ -9,55 +9,58 @@ source /opt/pluginmanager/config/targetdir.conf # get the target directory confi
 add_dir() {
     read -r -p "${GB} -> Enter your directory where you want to register updates: " newdir
     read -r -p "${GB} -> Enter your new server directory's name (no spaces, caps or special chars, REMEMBER THIS FOR UPDATES): ${RS}" newname
-    echo "$newanme=\"$newdir\"" | tee -a /opt/pluginmanager/config/targetdir.conf
+    echo "$newname=\"$newdir\"" | tee -a /opt/pluginmanager/config/targetdir.conf
     exit 0
 }
 
 download_update() {
     cd /opt/pluginmanager/downloads
     echo "$(date "+%d-%m-%y_%H-%M-%S")" > /opt/pluginmanager/tmp/datetime.txt
-    mkdir $(cat /opt/pluginmanager/tmp/datetime.txt)
-    cd $(cat /opt/pluginmanager/tmp/datetime.txt)
+    mkdir "$(cat /opt/pluginmanager/tmp/datetime.txt)"
+    cd "$(cat /opt/pluginmanager/tmp/datetime.txt)"
     echo -e "${GB} -> Downloading plugins for version $(cat $sversion)..."
-    git clone -b $(cat $sversion) --single-branch https://github.com/thedistromaker/serverplugins.git --depth=1 > /opt/pluginmanager/logs/log-$(date "+%d-%m-%y_%H-%M-%S").txt
+    git clone -b "$(cat $sversion)" --single-branch https://github.com/thedistromaker/serverplugins.git --depth=1 > /opt/pluginmanager/logs/log-$(date "+%d-%m-%y_%H-%M-%S").txt
     if [ ! -e here.txt ]; then
         echo -e "${RB} -> Failed to clone. Please try again. ${RS}"
         exit 1
     fi
     if [ $SEL -eq 0 ]; then
-        mkdir $defaultdir/plugins/temp
-        mv $defaultdir/plugins/*.jar $defaultdir/plugins/temp/
-        cp -rv *.jar $defaultdir/plugins/
-        mv $defaultdir/*.jar $defaultdir/plugins/temp/
-        cp -rv *.jar.sv $defaultdir/
-        filename="$(ls -l $defaultdir | grep -i ".sv")"
-        mv $filename "${filename%.sv}"
+        mkdir -p "$defaultdir/plugins/temp"
+        mv "$defaultdir/plugins/"*.jar "$defaultdir/plugins/temp/" 2>/dev/null
+        cp -rv *.jar "$defaultdir/plugins/"
+        mv "$defaultdir/"*.jar "$defaultdir/plugins/temp/" 2>/dev/null
+        cp -rv *.jar.sv "$defaultdir/"
+        for file in *.jar.sv; do
+            [ -e "$file" ] && mv "$file" "${file%.sv}"
+        done
     elif [ $SEL -gt 1 ]; then
         var="alt${SEL}sel"
         targetdir_tmp="${!var}"
-        if [ ! -e $targetdir_tmp ]; then
+        if [ ! -e "$targetdir_tmp" ]; then
             echo -e "${RB} -> Error: Target directory does not exist."
             exit 1
         fi
-        mkdir $targetdir_tmp/plugins/temp
-        mv $targetdir_tmp/plugins/*.jar $targetdir_tmp/plugins/temp/
-        cp -rv *.jar $targetdir_tmp/plugins/
-        mv $targetdir_tmp/*.jar $targetdir_tmp/plugins/temp/
-        cp -rv *.jar.sv $targetdir_tmp/
-        filename="$(ls -l $targetdir_tmp | grep -i ".sv")"
-        mv $filename "${filename%.sv}"
+        mkdir -p "$targetdir_tmp/plugins/temp"
+        mv "$targetdir_tmp/plugins/"*.jar "$targetdir_tmp/plugins/temp/" 2>/dev/null
+        cp -rv *.jar "$targetdir_tmp/plugins/"
+        mv "$targetdir_tmp/"*.jar "$targetdir_tmp/plugins/temp/" 2>/dev/null
+        cp -rv *.jar.sv "$targetdir_tmp/"
+        for file in "$targetdir_tmp"/*.jar.sv; do
+            [ -e "$file" ] && mv "$file" "${file%.sv}"
+        done
     elif [ $SEL -eq -1 ]; then
-        if [ ! -e $tdir_custom ]; then
+        if [ ! -e "$tdir_custom" ]; then
             echo -e "${RB} -> Error: Target directory does not exist."
             exit 1
         fi
-        mkdir $tdir_custom/plugins/temp
-        mv $tdir_custom/plugins/*.jar $tdir_custom/plugins/temp/
-        cp -rv *.jar $tdir_custom/plugins/
-        mv $tdir_custom/*.jar $tdir_custom/plugins/temp/
-        cp -rv *.jar.sv $tdir_custom/
-        filename="$(ls $tdir_custom | grep -i ".sv")"
-        mv $tdir_custom/$filename $tdir_custom/"${filename%.sv}"
+        mkdir -p "$tdir_custom/plugins/temp"
+        mv "$tdir_custom/plugins/"*.jar "$tdir_custom/plugins/temp/" 2>/dev/null
+        cp -rv *.jar "$tdir_custom/plugins/"
+        mv "$tdir_custom/"*.jar "$tdir_custom/plugins/temp/" 2>/dev/null
+        cp -rv *.jar.sv "$tdir_custom/"
+        for file in "$tdir_custom"/*.jar.sv; do
+            [ -e "$file" ] && mv "$file" "$tdir_custom/${file##*/%.sv}"
+        done
     fi
     unset SEL NUM target
     rm -fr /opt/pluginmanager/tmp/*
